@@ -73,6 +73,7 @@ This project is designed as a **resume portfolio project** to showcase real-worl
 
 ## 📂 Project Structure (Next.js 13 + Express Backend)
 
+```
 BookMyDoctor/
 │── client/ # Frontend (Next.js 13+ App Router)
 │ ├── app/ # Next.js app directory
@@ -102,16 +103,17 @@ BookMyDoctor/
 │
 │── README.md
 │── package.json
+```
 
 
-2️⃣ Setup Backend
+2️⃣ **Setup Backend**
 
 cd server
 npm install
 npm run dev
 
 
-3️⃣ Setup Frontend
+3️⃣ **Setup Frontend**
 cd client
 npm install
 npm run dev
