@@ -1,6 +1,5 @@
 const mongoose = require("mongoose");
 
-// Doctor schema for Phase 1 (only authentication + approval)
 const doctorSchema = new mongoose.Schema({
   name: { 
     type: String, 
@@ -15,10 +14,18 @@ const doctorSchema = new mongoose.Schema({
     type: String, 
     required: true 
   },
+  specialty: { 
+    type: String, 
+    default: ""  // Optional for Phase 1
+  },
+  license: { 
+    type: String, 
+    default: ""  // Optional for Phase 1
+  },
   approved: { 
     type: Boolean, 
-    default: false      // must be approved by admin before accessing dashboard
-  }
+    default: false 
+  },
 }, { 
   timestamps: true 
 });
