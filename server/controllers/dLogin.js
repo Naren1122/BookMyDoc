@@ -6,7 +6,7 @@ const loginDoctor = async (req, res) => {
     const { email, password } = req.body;
 
     const doctor = await Doctor.findOne({ email });
-    if (!doctor) return res.status(401).json({ message: "Invalid credentials" });
+    if (!doctor) return res.status(404).json({ message: "Doctor does not exist" });
 
     // Check if approved by admin
     if (!doctor.approved)
@@ -14,7 +14,7 @@ const loginDoctor = async (req, res) => {
 
     // Compare password using model method
     const isMatch = await doctor.comparePassword(password);
-    if (!isMatch) return res.status(401).json({ message: "Invalid credentials" });
+    if (!isMatch) return res.status(401).json({ message: "Invalid password" });
 
     const token = jwt.sign(
       { id: doctor._id, role: "doctor" },

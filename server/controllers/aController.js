@@ -2,30 +2,24 @@ const bcrypt = require("bcryptjs");
 const Admin = require("../models/Admin");
 const jwt = require("jsonwebtoken");
 const Doctor = require("../models/Doctor");
+const Patient = require("../models/Patient"); // ✅ Import Patient model
 
 /**
  * @desc Create or update default admin user
- * @usage Called when server starts
  */
 const createDefaultAdmin = async () => {
   try {
-    // Check if admin exists
     let admin = await Admin.findOne({ email: process.env.ADMIN_EMAIL });
 
     if (!admin) {
-      // Hash password
       const hashedPassword = await bcrypt.hash(process.env.ADMIN_PASSWORD, 10);
-
-      // Create new admin
       admin = await Admin.create({
         name: process.env.ADMIN_NAME,
         email: process.env.ADMIN_EMAIL,
         password: hashedPassword,
       });
-
       console.log("✅ Default admin created successfully");
     } else {
-      // Optional: Update password to match .env (for development/testing)
       const hashedPassword = await bcrypt.hash(process.env.ADMIN_PASSWORD, 10);
       admin.password = hashedPassword;
       await admin.save();
@@ -42,16 +36,12 @@ const createDefaultAdmin = async () => {
 const loginAdmin = async (req, res) => {
   try {
     const { email, password } = req.body;
-
-    // Find admin by email
     const admin = await Admin.findOne({ email });
     if (!admin) return res.status(401).json({ message: "Invalid Email" });
 
-    // Compare password
     const isMatch = await bcrypt.compare(password, admin.password);
     if (!isMatch) return res.status(401).json({ message: "Invalid Password" });
 
-    // Generate JWT
     const token = jwt.sign(
       { id: admin._id, role: "admin" },
       process.env.JWT_SECRET,
@@ -73,18 +63,14 @@ const loginAdmin = async (req, res) => {
   }
 };
 
-
-//approve a doctor
-
+/**
+ * @desc Approve a doctor
+ */
 const approveDoctor = async (req, res) => {
   try {
-    const doctorId = req.params.id;
-
-    // Find the doctor by ID
-    const doctor = await Doctor.findById(doctorId);
+    const doctor = await Doctor.findById(req.params.id);
     if (!doctor) return res.status(404).json({ message: "Doctor not found" });
 
-    // Update approval status
     doctor.approved = true;
     await doctor.save();
 
@@ -94,8 +80,8 @@ const approveDoctor = async (req, res) => {
         id: doctor._id,
         name: doctor.name,
         email: doctor.email,
-        approved: doctor.approved
-      }
+        approved: doctor.approved,
+      },
     });
   } catch (err) {
     console.error(err);
@@ -103,5 +89,38 @@ const approveDoctor = async (req, res) => {
   }
 };
 
+/**
+ * @desc Delete patient by Admin
+ */
+const deletePatientByAdmin = async (req, res) => {
+  try {
+    const patient = await Patient.findByIdAndDelete(req.params.id);
+    if (!patient) return res.status(404).json({ message: "Patient not found" });
 
-module.exports = { createDefaultAdmin, loginAdmin, approveDoctor };
+    res.json({ success: true, message: "Patient deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Server error", error: err.message });
+  }
+};
+
+/**
+ * @desc Delete doctor by Admin
+ */
+const deleteDoctorByAdmin = async (req, res) => {
+  try {
+    const doctor = await Doctor.findByIdAndDelete(req.params.id);
+    if (!doctor) return res.status(404).json({ message: "Doctor not found" });
+
+    res.json({ success: true, message: "Doctor deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Server error", error: err.message });
+  }
+};
+
+module.exports = { 
+  createDefaultAdmin, 
+  loginAdmin, 
+  approveDoctor, 
+  deletePatientByAdmin, 
+  deleteDoctorByAdmin 
+};
