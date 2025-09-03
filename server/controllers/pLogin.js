@@ -7,11 +7,11 @@ const loginPatient = async (req, res) => {
 
     // Find patient by email
     const patient = await Patient.findOne({ email });
-    if (!patient) return res.status(400).json({ message: 'Invalid credentials' });
+    if (!patient) return res.status(400).json({ message: 'Invalid Email' });
 
     // Compare input password with hashed password in DB
     const isMatch = await patient.comparePassword(password);
-    if (!isMatch) return res.status(400).json({ message: 'Invalid credentials' });
+    if (!isMatch) return res.status(400).json({ message: 'Invalid Password' });
 
     // Generate JWT token
     // Payload contains patient ID and role (important for role-based auth later)
@@ -22,7 +22,11 @@ const loginPatient = async (req, res) => {
     );
 
     // Send token back to client
-    res.json({ message: 'Login successful', token });
+    res.json({ message: 'Login successful',
+    token,
+    patient: { id: patient._id, name: patient.name, email: patient.email } 
+    
+     });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

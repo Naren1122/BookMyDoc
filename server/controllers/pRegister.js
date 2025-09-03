@@ -1,8 +1,8 @@
 const Patient = require('../models/Patient');
+const jwt = require('jsonwebtoken');
 
 const registerPatient = async (req, res) => {
- 
-      try {
+  try {
     // Destructure incoming request body
     const { name, email, password, phone, gender } = req.body;
 
@@ -19,11 +19,28 @@ const registerPatient = async (req, res) => {
     const patient = new Patient({ name, email, password, phone, gender });
 
     // Save patient to DB
-    // Note: Password will be hashed automatically via pre-save hook in schema
+    // Password is hashed automatically via pre-save hook in schema
     await patient.save();
 
-    // Send success response
-    res.status(201).json({ message: 'Patient registered successfully' });
+    // Generate JWT token
+    const token = jwt.sign(
+      { id: patient._id, role: 'patient' },
+      process.env.JWT_SECRET,
+      { expiresIn: '7d' } // Token valid for 7 days
+    );
+
+    // Send success response with token and patient info
+    res.status(201).json({
+      message: 'Patient registered successfully',
+      token,
+      patient: {
+        id: patient._id,
+        name: patient.name,
+        email: patient.email,
+        phone: patient.phone,
+        gender: patient.gender
+      }
+    });
   } catch (err) {
     // Catch and return server errors
     res.status(500).json({ message: err.message });
