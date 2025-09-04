@@ -5,6 +5,7 @@ const {
   getPatientAppointments,
   getDoctorAppointments,
   cancelAppointment,
+  confirmAppointment,
 } = require("../../controllers/appointments/bcgg");
 
 const { protect, authorize } = require("../../middleware/authMiddleware");
@@ -20,5 +21,9 @@ router.get("/doctor", protect, authorize("doctor"), getDoctorAppointments);
 
 // Patient cancels their appointment
 router.put("/cancel/:id", protect, authorize("patient"), cancelAppointment);
+
+// Doctor or Admin confirms an appointment
+router.patch("/confirm/:id", protect, authorize("doctor", "admin"), confirmAppointment);
+
 
 module.exports = router;

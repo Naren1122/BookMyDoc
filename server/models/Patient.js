@@ -12,6 +12,7 @@ const patientSchema = new mongoose.Schema({
     enum: ["male", "female", "other"],
     lowercase: true, // makes it case-insensitive
   },
+  role: { type: String, default: "patient" }, // ✅ Add role for authorization
   resetPasswordToken: String,
   resetPasswordExpire: Date,
 }, { timestamps: true });
