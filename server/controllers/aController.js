@@ -2,7 +2,8 @@ const bcrypt = require("bcryptjs");
 const Admin = require("../models/Admin");
 const jwt = require("jsonwebtoken");
 const Doctor = require("../models/Doctor");
-const Patient = require("../models/Patient"); // ✅ Import Patient model
+const Patient = require("../models/Patient"); 
+const jwtConfig = require("../utils/jwtConfig"); // ✅ Import JWT config
 
 /**
  * @desc Create or update default admin user
@@ -42,15 +43,19 @@ const loginAdmin = async (req, res) => {
     const isMatch = await bcrypt.compare(password, admin.password);
     if (!isMatch) return res.status(401).json({ message: "Invalid Password" });
 
+    // JWT with role-based expiration
+    const expiresIn = jwtConfig["admin"];
     const token = jwt.sign(
       { id: admin._id, role: "admin" },
       process.env.JWT_SECRET,
-      { expiresIn: "1d" }
+      { expiresIn }
     );
 
     res.status(200).json({
       message: "Login successful",
       token,
+      role: "admin",
+      expiresIn,
       admin: {
         id: admin._id,
         name: admin.name,
@@ -78,6 +83,7 @@ const approveDoctor = async (req, res) => {
       message: `Doctor ${doctor.name} has been approved successfully`,
       doctor: {
         id: doctor._id,
+        phone: doctor.phone,
         name: doctor.name,
         email: doctor.email,
         approved: doctor.approved,

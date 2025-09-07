@@ -11,8 +11,8 @@ const registerDoctor = async (req, res) => {
     const { name, email, password, gender, speciality, license } = req.body;
 
     // 1️⃣ Validate required fields
-    if (!name || !email || !password) {
-      return res.status(400).json({ message: "Name, email, and password are required" });
+    if (!name || !email || !password || !phone) {
+      return res.status(400).json({ message: "Name, email, password, and phone are required" });
     }
 
     // 2️⃣ Check if doctor already exists
@@ -24,11 +24,9 @@ const registerDoctor = async (req, res) => {
     // 3️⃣ Create doctor
     const doctor = await Doctor.create({
       name,
+      phone,
       email,
       password, // Will be hashed automatically via pre-save hook
-      gender: gender || "",
-      speciality: speciality || "",
-      license: license || "",
       approved: false, // Default pending approval
     });
 
@@ -40,10 +38,8 @@ const registerDoctor = async (req, res) => {
       doctor: {
         id: doctor._id,
         name: doctor.name,
+        phone: doctor.phone,
         email: doctor.email,
-        gender: doctor.gender,
-        speciality: doctor.speciality,
-        license: doctor.license,
         approved: doctor.approved,
       },
     });

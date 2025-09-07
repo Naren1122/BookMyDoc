@@ -1,5 +1,6 @@
 const Doctor = require("../models/Doctor");
 const jwt = require("jsonwebtoken");
+const jwtConfig = require("../utils/jwtConfig");
 
 const loginDoctor = async (req, res) => {
   try {
@@ -12,19 +13,23 @@ const loginDoctor = async (req, res) => {
     if (!doctor.approved)
       return res.status(403).json({ message: "Account pending approval" });
 
-    // Compare password using model method
+    // Compare password
     const isMatch = await doctor.comparePassword(password);
     if (!isMatch) return res.status(401).json({ message: "Invalid password" });
 
+    // JWT with role-based expiration
+    const expiresIn = jwtConfig["doctor"];
     const token = jwt.sign(
       { id: doctor._id, role: "doctor" },
       process.env.JWT_SECRET,
-      { expiresIn: "1d" }
+      { expiresIn }
     );
 
     res.status(200).json({
       message: "Login successful",
       token,
+      role: "doctor",
+      expiresIn,
       doctor: { id: doctor._id, name: doctor.name, email: doctor.email },
     });
   } catch (err) {

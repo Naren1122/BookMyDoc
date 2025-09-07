@@ -4,11 +4,11 @@ const jwt = require('jsonwebtoken');
 const registerPatient = async (req, res) => {
   try {
     // Destructure incoming request body
-    const { name, email, password, phone, gender } = req.body;
+    const { name, email, password, phone } = req.body;
 
     // Check if required fields are provided
-    if (!name || !email || !password) {
-      return res.status(400).json({ message: 'Name, email, and password are required' });
+    if (!name || !email || !password || !phone ) {
+      return res.status(400).json({ message: 'Name, email, password, phone are required' });
     }
 
     // Check if the email is already registered
@@ -16,7 +16,7 @@ const registerPatient = async (req, res) => {
     if (existing) return res.status(400).json({ message: 'Email already registered' });
 
     // Create a new patient document
-    const patient = new Patient({ name, email, password, phone, gender });
+    const patient = new Patient({ name, email, password, phone });
 
     // Save patient to DB
     // Password is hashed automatically via pre-save hook in schema
@@ -37,8 +37,7 @@ const registerPatient = async (req, res) => {
         id: patient._id,
         name: patient.name,
         email: patient.email,
-        phone: patient.phone,
-        gender: patient.gender
+        phone: patient.phone
       }
     });
   } catch (err) {

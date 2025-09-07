@@ -3,9 +3,9 @@ const crypto = require("crypto");
 
 // Doctor forgot password
 const forgotPassword = async (req, res) => {
-  const { email } = req.body;
+  const { phone } = req.body;
   try {
-    const doctor = await Doctor.findOne({ email });
+    const doctor = await Doctor.findOne({ phone });
     if (!doctor) return res.status(404).json({ success: false, message: "Doctor does not exist" });
 
     // Generate reset token
@@ -15,7 +15,7 @@ const forgotPassword = async (req, res) => {
     // Return token for testing
     res.status(200).json({
       success: true,
-      message: "Reset password token generated. Please check your email.",
+      message: "Reset password token generated. Please check your message.",
       resetToken
     });
   } catch (error) {
